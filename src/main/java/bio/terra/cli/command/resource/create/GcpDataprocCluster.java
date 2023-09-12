@@ -146,7 +146,7 @@ public class GcpDataprocCluster extends WsmBaseCommand {
   protected void execute() {
     workspaceOption.overrideIfSpecified();
     CommandUtils.checkWorkspaceSupport(CloudPlatform.GCP);
-    CommandUtils.checkDataprocSupport();
+    // CommandUtils.checkDataprocSupport();
 
     // Retrieve the staging and temp bucket resource UUIDs and throw if they don't exist
     UUID configBucketId = Context.requireWorkspace().getResource(configBucket).getId();

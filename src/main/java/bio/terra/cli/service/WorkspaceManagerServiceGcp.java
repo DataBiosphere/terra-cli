@@ -15,6 +15,7 @@ import bio.terra.cli.serialization.userfacing.input.CreateGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.GcsBucketLifecycle;
 import bio.terra.cli.serialization.userfacing.input.GcsStorageClass;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledBqDatasetParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpNotebookParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcsBucketParams;
 import bio.terra.cli.serialization.userfacing.input.UpdateReferencedBqDatasetParams;
@@ -24,6 +25,7 @@ import bio.terra.cli.serialization.userfacing.input.UpdateReferencedGcsObjectPar
 import bio.terra.cli.service.utils.HttpUtils;
 import bio.terra.workspace.api.ControlledGcpResourceApi;
 import bio.terra.workspace.api.ReferencedGcpResourceApi;
+import bio.terra.workspace.model.ControlledDataprocClusterUpdateParameters;
 import bio.terra.workspace.model.CreateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpBigQueryDatasetRequestBody;
 import bio.terra.workspace.model.CreateControlledGcpDataprocClusterRequestBody;
@@ -52,6 +54,7 @@ import bio.terra.workspace.model.GcpBigQueryDatasetAttributes;
 import bio.terra.workspace.model.GcpBigQueryDatasetCreationParameters;
 import bio.terra.workspace.model.GcpBigQueryDatasetResource;
 import bio.terra.workspace.model.GcpBigQueryDatasetUpdateParameters;
+import bio.terra.workspace.model.GcpDataprocClusterLifecycleConfig;
 import bio.terra.workspace.model.GcpDataprocClusterResource;
 import bio.terra.workspace.model.GcpGcsBucketAttributes;
 import bio.terra.workspace.model.GcpGcsBucketCreationParameters;
@@ -68,6 +71,7 @@ import bio.terra.workspace.model.UpdateBigQueryDataTableReferenceRequestBody;
 import bio.terra.workspace.model.UpdateBigQueryDatasetReferenceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpAiNotebookInstanceRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpBigQueryDatasetRequestBody;
+import bio.terra.workspace.model.UpdateControlledGcpDataprocClusterRequestBody;
 import bio.terra.workspace.model.UpdateControlledGcpGcsBucketRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketObjectReferenceRequestBody;
 import bio.terra.workspace.model.UpdateGcsBucketReferenceRequestBody;
@@ -556,6 +560,70 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
             new ControlledGcpResourceApi(apiClient)
                 .updateAiNotebookInstance(updateRequest, workspaceId, resourceId),
         "Error updating controlled GCP notebook in the workspace.");
+  }
+
+  /**
+   * Call the Workspace Manager POST
+   * "/api/workspaces/v1/{workspaceId}/resources/controlled/gcp/dataproc-clusters/{resourceId}"
+   * endpoint to update a GCP Dataproc cluster controlled resource in the workspace.
+   *
+   * @param workspaceId the workspace where the resource exists
+   * @param resourceId the resource id
+   * @param updateParams resource properties to update
+   */
+  public void updateControlledDataprocCluster(
+      UUID workspaceId, UUID resourceId, UpdateControlledGcpDataprocClusterParams updateParams) {
+
+    ControlledGcpResourceApi gcpResourceApi = new ControlledGcpResourceApi(apiClient);
+    String updateErrMsg =  "Error updating controlled GCP Dataproc cluster in the workspace";
+
+    // Update WSM metadata fields and primary, secondary worker counts, and graceful decommission timeout.
+    UpdateControlledGcpDataprocClusterRequestBody updateRequest =
+        new UpdateControlledGcpDataprocClusterRequestBody()
+            .name(updateParams.resourceFields.name)
+            .description(updateParams.resourceFields.description);
+
+    updateRequest.updateParameters(
+        new ControlledDataprocClusterUpdateParameters()
+            .numPrimaryWorkers(updateParams.numWorkers)
+            .numSecondaryWorkers(updateParams.numSecondaryWorkers)
+            .gracefulDecommissionTimeout(updateParams.gracefulDecommissionTimeout));
+
+    callWithRetries(
+        () -> gcpResourceApi.updateDataprocCluster(updateRequest, workspaceId, resourceId),
+        updateErrMsg);
+
+    // Update autoscaling policy independently. Dataproc api does not allow autoscaling policy and
+    // other attributes in tandem.
+    if (updateParams.autoscalingPolicyUri != null) {
+      UpdateControlledGcpDataprocClusterRequestBody autoscalingPolicyUpdateRequest =
+          new UpdateControlledGcpDataprocClusterRequestBody()
+              .updateParameters(
+                  new ControlledDataprocClusterUpdateParameters()
+                      .autoscalingPolicy(updateParams.autoscalingPolicyUri));
+      callWithRetries(
+          () ->
+              gcpResourceApi.updateDataprocCluster(
+                  autoscalingPolicyUpdateRequest, workspaceId, resourceId),
+          updateErrMsg);
+    }
+
+    // Update scheduled deletion independently. Dataproc api does not allow autoscaling policy and
+    // other attributes in tandem.
+    if (updateParams.idleDeleteTtl != null) {
+      UpdateControlledGcpDataprocClusterRequestBody autoscalingPolicyUpdateRequest =
+          new UpdateControlledGcpDataprocClusterRequestBody()
+              .updateParameters(
+                  new ControlledDataprocClusterUpdateParameters()
+                      .lifecycleConfig(
+                          new GcpDataprocClusterLifecycleConfig()
+                              .idleDeleteTtl(updateParams.idleDeleteTtl)));
+      callWithRetries(
+          () ->
+              gcpResourceApi.updateDataprocCluster(
+                  autoscalingPolicyUpdateRequest, workspaceId, resourceId),
+          updateErrMsg);
+    }
   }
 
   /**
