@@ -8,29 +8,30 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class CommandUtils {
-  // Checks if current server supports cloud platform
-  private static void checkServerSupport(CloudPlatform cloudPlatform)
+  public static boolean isPlatformEnabled(CloudPlatform cloudPlatform) {
+    boolean isEnabled =
+        switch (cloudPlatform) {
+          case AWS -> FeatureService.fromContext()
+              .isFeatureEnabled(FeatureService.AWS_ENABLED, Context.requireUser().getEmail());
+          case GCP -> true;
+          default -> false;
+        };
+
+    return isEnabled
+        ||
+        // fallback: if feature service is not enabled check server config
+        Context.getServer().getSupportedCloudPlatforms().contains(cloudPlatform);
+  }
+
+  public static void checkPlatformEnabled(CloudPlatform cloudPlatform)
       throws UserActionableException {
-    if (!Context.getServer().getSupportedCloudPlatforms().contains(cloudPlatform)) {
+    if (!isPlatformEnabled(cloudPlatform)) {
       throw new UserActionableException(
           "Cloud platform "
               + cloudPlatform
               + " not supported for server "
               + Context.getServer().getName());
     }
-  }
-
-  public static void checkPlatformEnabled(CloudPlatform cloudPlatform)
-      throws UserActionableException {
-    if (switch (cloudPlatform) {
-      case AWS -> FeatureService.fromContext()
-          .isFeatureEnabled(FeatureService.AWS_ENABLED, Context.requireUser().getEmail());
-      case GCP -> true;
-      default -> false;
-    }) return;
-
-    // fallback: if feature service is not enabled check server config
-    checkServerSupport(cloudPlatform);
   }
 
   // Checks if workspace cloud platform is one of the cloud platforms

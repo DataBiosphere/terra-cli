@@ -1,9 +1,10 @@
 package harness.utils;
 
+import static bio.terra.cli.utils.AwsConfiguration.AWS_CONFIG_FILE_ENVIRONMENT_VARIABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.cli.command.workspace.ConfigureAws;
+import bio.terra.cli.utils.AwsConfiguration;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -12,14 +13,14 @@ import java.util.regex.Pattern;
 import software.amazon.awssdk.profiles.Profile;
 import software.amazon.awssdk.profiles.ProfileFile;
 
-public class AwsConfigurationUtils {
+public class AwsConfigurationTestUtils {
   private static final Pattern configOutputPattern = Pattern.compile("export (.*)=(.*)");
 
   public static Path getProfilePathFromOutput(String configOutput) {
     Matcher matcher = configOutputPattern.matcher(configOutput);
     assertTrue(matcher.find());
     assertEquals(2, matcher.groupCount());
-    assertEquals(ConfigureAws.AWS_CONFIG_FILE_ENVIRONMENT_VARIABLE, matcher.group(1));
+    assertEquals(AWS_CONFIG_FILE_ENVIRONMENT_VARIABLE, matcher.group(1));
     return Path.of(matcher.group(2));
   }
 
@@ -40,12 +41,12 @@ public class AwsConfigurationUtils {
   private static void validateResourceProfile(
       String region,
       ResourceProfile resourceProfile,
-      Optional<String> optionalTerraPath,
+      String terraPath,
       String resourceName,
       String access) {
-    String terraPath = optionalTerraPath.orElse(ConfigureAws.DEFAULT_TERRA_PATH);
     String expectedCommandLine =
-        String.join(" ", ConfigureAws.buildResourceCommandLine(terraPath, resourceName, access));
+        String.join(
+            " ", AwsConfiguration.buildResourceCommandLine(terraPath, resourceName, access));
     assertEquals(expectedCommandLine, resourceProfile.credentialProcess());
     assertEquals(region, resourceProfile.region());
   }
@@ -53,28 +54,24 @@ public class AwsConfigurationUtils {
   private static void validateCachedProfile(
       String region,
       ResourceProfile resourceProfile,
-      Optional<String> optionalAwsVaultPath,
+      String awsVaultPath,
       String targetProfileName) {
-    String awsVaultPath = optionalAwsVaultPath.orElse(ConfigureAws.DEFAULT_AWS_VAULT_PATH);
     String expectedCommandLine =
-        String.join(" ", ConfigureAws.buildCachingCommandLine(awsVaultPath, targetProfileName));
+        String.join(" ", AwsConfiguration.buildCachingCommandLine(awsVaultPath, targetProfileName));
     assertEquals(expectedCommandLine, resourceProfile.credentialProcess());
     assertEquals(region, resourceProfile.region());
   }
 
   public static void validateConfiguration(
-      String configOutput,
-      String region,
-      Collection<String> resourceNames,
-      Optional<String> defaultResourceName,
-      boolean cacheWithAwsVault,
-      Optional<String> terraPath,
-      Optional<String> awsVaultPath) {
+      AwsConfiguration awsConfiguration, String region, Collection<String> resourceNames) {
+    Path configFilePath = awsConfiguration.getFilePath();
+    String terraPath = awsConfiguration.getTerraPath();
+    String awsVaultPath = awsConfiguration.getAwsVaultPath();
+    boolean cacheWithAwsVault = awsConfiguration.getCacheWithAwsVault();
+    Optional<String> defaultResourceName = awsConfiguration.getDefaultResourceName();
+
     ProfileFile profileFile =
-        ProfileFile.builder()
-            .type(ProfileFile.Type.CONFIGURATION)
-            .content(getProfilePathFromOutput(configOutput))
-            .build();
+        ProfileFile.builder().type(ProfileFile.Type.CONFIGURATION).content(configFilePath).build();
 
     for (String resourceName : resourceNames) {
       String readOnlyResourceName = String.format("%s-ro", resourceName);
