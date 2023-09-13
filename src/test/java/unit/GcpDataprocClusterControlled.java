@@ -214,7 +214,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
 
   @Test
   @DisplayName("update cluster worker count and idle deletion time")
-  void overrideLocationAndInstanceId() throws IOException, InterruptedException {
+  void update() throws IOException, InterruptedException {
     workspaceCreator.login();
 
     // `terra workspace set --id=$id`
@@ -228,7 +228,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
         UFGcpDataprocCluster.class,
         "resource",
         "update",
-        "gcp-cluster",
+        "dataproc-cluster",
         "--name=" + clusterName,
         "--new-description=" + newDescription,
         "--num-workers=" + newPrimaryWorkerCount,
@@ -243,7 +243,7 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
             UFGcpDataprocCluster.class,
             "resource",
             "update",
-            "gcp-cluster",
+            "dataproc-cluster",
             "--name=" + clusterName,
             "--idle-delete-ttl=" + newIdleDeleteTtl);
     ResourceUtils.pollDescribeForResourceField(clusterName, "status", "RUNNING");
