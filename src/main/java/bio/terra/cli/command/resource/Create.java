@@ -3,6 +3,7 @@ package bio.terra.cli.command.resource;
 import bio.terra.cli.command.resource.create.AwsS3StorageFolder;
 import bio.terra.cli.command.resource.create.AwsSageMakerNotebook;
 import bio.terra.cli.command.resource.create.BqDataset;
+import bio.terra.cli.command.resource.create.GcpDataprocCluster;
 import bio.terra.cli.command.resource.create.GcpNotebook;
 import bio.terra.cli.command.resource.create.GcsBucket;
 import picocli.CommandLine;
@@ -19,6 +20,7 @@ import picocli.CommandLine;
     subcommands = {
       GcsBucket.class,
       GcpNotebook.class,
+      GcpDataprocCluster.class,
       BqDataset.class,
       AwsS3StorageFolder.class,
       AwsSageMakerNotebook.class

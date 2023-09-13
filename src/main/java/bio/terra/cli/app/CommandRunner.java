@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sub-classes of CommandRunner define different ways to run app/tool commands (e.g. in a Docker
+ * Subclasses of CommandRunner define different ways to run app/tool commands (e.g. in a Docker
  * container, in a local child process). This class handles things that all of these options will
  * need, including building a map of environment variables to set before running the command. These
  * environment variables specify resolved workspace references and other context information.

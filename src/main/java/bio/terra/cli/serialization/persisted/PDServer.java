@@ -27,6 +27,7 @@ public class PDServer {
   public final String dataRepoUri;
   public final String externalCredsUri;
   public final String userManagerUri;
+  public final String axonServerUri;
   public final boolean supportsIdToken;
   public final Set<CloudPlatform> supportedCloudPlatforms;
   public final boolean auth0Enabled;
@@ -49,6 +50,7 @@ public class PDServer {
     this.dataRepoUri = internalObj.getDataRepoUri();
     this.externalCredsUri = internalObj.getExternalCredsUri();
     this.userManagerUri = internalObj.getUserManagerUri();
+    this.axonServerUri = internalObj.getAxonServerUri();
     this.supportsIdToken = internalObj.getSupportsIdToken();
     this.supportedCloudPlatforms = internalObj.getSupportedCloudPlatforms();
     this.auth0Enabled = internalObj.getAuth0Enabled();
@@ -69,6 +71,7 @@ public class PDServer {
     this.dataRepoUri = builder.dataRepoUri;
     this.externalCredsUri = builder.externalCredsUri;
     this.userManagerUri = builder.userManagerUri;
+    this.axonServerUri = builder.axonServerUri;
     this.supportsIdToken = builder.supportsIdToken;
     this.supportedCloudPlatforms =
         builder.supportedCloudPlatforms != null
@@ -93,6 +96,7 @@ public class PDServer {
     private String dataRepoUri;
     private String externalCredsUri;
     private String userManagerUri;
+    private String axonServerUri;
     private boolean supportsIdToken;
     private Set<CloudPlatform> supportedCloudPlatforms;
 
@@ -159,6 +163,11 @@ public class PDServer {
 
     public Builder userManagerUri(String userManagerUri) {
       this.userManagerUri = userManagerUri;
+      return this;
+    }
+
+    public Builder axonServerUri(String axonServerUri) {
+      this.axonServerUri = axonServerUri;
       return this;
     }
 

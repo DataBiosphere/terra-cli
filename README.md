@@ -15,6 +15,7 @@
 4. [Commands description](#commands-description)
     * [Applications](#applications)
     * [Authentication](#authentication)
+    * [Clusters](#clusters)
     * [Config](#config)
     * [Git](#git)
     * [Groups](#groups)
@@ -403,6 +404,7 @@ below.
 * `spend` [Spend](#spend)
 * `user` [User](#user)
 * `workspace` [Workspace](#workspace)
+* `folder` [Folder](#folder)
 
 ### Applications
 
@@ -491,6 +493,42 @@ Please open the following address in a browser on any machine:
 Please enter code: *****
 Login successful: testuser@gmail.com
 ```
+
+### Clusters
+
+```
+Usage: terra cluster [COMMAND]
+Use spark clusters in the workspace.
+
+Commands:
+  start   Start a stopped Dataproc cluster within your workspace.
+  stop    Stop a started Dataproc cluster within your workspace.
+  launch  Launch a running Dataproc cluster within your workspace.
+```
+
+You can create a Dataproc (controlled resource) with
+
+```shell
+terra resource create gcp-dataproc-cluster --name=<resourcename> --bucket=<configBucket> --temp-bucket=<tempBucket> [--workspace=<id>]
+```
+
+> Note: You must have controlled config and temp gcs buckets created within your workspace before creating a cluster.
+
+These `stop`, `start` and `launch` commands are provided for convenience.
+
+* [gcp-dataproc-clusters](https://cloud.google.com/dataproc/docs/concepts/overview) are supported on workspaces
+  created on cloud platform GCP. You can also stop and start the notebook using
+  the `gcloud dataproc clusters [start|stop]` commands.
+
+To launch a component web interface, ensure that the component has been enabled during cluster creation via the `--components` flag, then run:
+
+```shell
+terra cluster launch --name=<cluster-name> --proxy-view=<component>
+```
+
+The supported components are: YARN_RESOURCE_MANAGER, MAPREDUCE_JOB_HISTORY, SPARK_HISTORY_SERVER,  HDFS_NAMENODE, YARN_APPLICATION_TIMELINE, HIVESERVER2, TEZ, JUPYTER, JUPYTERLAB, ZEPPELIN, SOLR, FLINK_HISTORY_SERVER.
+
+See [Dataproc optional components](https://cloud.google.com/dataproc/docs/concepts/components/overview) for more details.
 
 ### Config
 
@@ -658,6 +696,7 @@ Commands:
   list                       List all resources.
   list-tree                  List all resources and folders in tree view.
   mount                      Mounts all workspace bucket resources.
+  move                       Move resource to a folder.
   open-console               Retrieve console link to access a cloud resource.
   resolve                    Resolve a resource to its cloud id or path.
   unmount                    Unmounts all workspace bucket resources.
@@ -945,6 +984,17 @@ The `break-glass` command is intended for admin users. Admins,
 see [ADMIN.md](https://github.com/DataBiosphere/terra-cli/blob/main/ADMIN.md#break-glass)
 for more details.
 
+### Folder
+```
+Usage: terra folder [COMMAND]
+Setup a folder in a Terra workspace.
+Comands:
+  create        create a folder
+  delete        delete a folder
+  update        update a folder's name, description, parent folder
+  set-property  set key-value properties on a folder
+  tree          print out the folders in the workspace in a tree hiearchy
+```
 -----
 
 ## Workspace context for applications

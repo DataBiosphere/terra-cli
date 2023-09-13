@@ -129,6 +129,12 @@ public class UserIO {
     return fromList.stream().sorted(sorter).map(mapper).collect(Collectors.toList());
   }
 
+  public static boolean isBrowserSupported() {
+    return (Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO))
+        && Desktop.isDesktopSupported()
+        && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE);
+  }
+
   /**
    * Open a browser at the given URL using {@link Desktop} if available, or alternatively output the
    * URL to {@link System#out} for command-line applications. (copied from google-oauth-client-java)
@@ -140,9 +146,7 @@ public class UserIO {
     getOut().println("Please open the following address in your browser:");
     getOut().println("  " + url);
     try {
-      if ((Context.getConfig().getBrowserLaunchOption().equals(Config.BrowserLaunchOption.AUTO))
-          && Desktop.isDesktopSupported()
-          && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+      if (isBrowserSupported()) {
         getOut().println("Attempting to open that address in the default browser now...");
         Desktop.getDesktop().browse(URI.create(url));
       }

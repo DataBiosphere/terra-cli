@@ -5,6 +5,7 @@ import bio.terra.cli.serialization.userfacing.resource.UFAwsS3StorageFolder;
 import bio.terra.cli.serialization.userfacing.resource.UFAwsSageMakerNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFBqDataset;
 import bio.terra.cli.serialization.userfacing.resource.UFBqTable;
+import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpNotebook;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsBucket;
 import bio.terra.cli.serialization.userfacing.resource.UFGcsObject;
@@ -37,6 +38,7 @@ import java.util.UUID;
     property = "resourceType")
 @JsonSubTypes({
   @Type(value = UFGcpNotebook.class, name = "AI_NOTEBOOK"),
+  @Type(value = UFGcpDataprocCluster.class, name = "DATAPROC_CLUSTER"),
   @Type(value = UFBqTable.class, name = "BQ_TABLE"),
   @Type(value = UFBqDataset.class, name = "BQ_DATASET"),
   @Type(value = UFGcsBucket.class, name = "GCS_BUCKET"),

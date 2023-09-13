@@ -18,13 +18,14 @@ import picocli.CommandLine;
     name = "list-tree",
     description = "List all resources and folders in tree view.")
 public class ListTree extends WsmBaseCommand {
+
+  public static final String TERRA_FOLDER_ID_PROPERTY_KEY = "terra-folder-id";
   @CommandLine.Mixin WorkspaceOverride workspaceOption;
 
   private static final HashMap<UUID, ArrayList<UUID>> EDGES = new HashMap<>();
   private static final HashMap<UUID, String> ID_TO_NAME = new HashMap<>();
   private static final HashMap<UUID, Boolean> IS_FOLDER = new HashMap<>();
   private static final UUID ROOT = UUID.randomUUID();
-  private static final String TERRA_FOLDER_ID_PROPERTY_KEY = "terra-folder-id";
 
   /** List the resources and folders in the workspace. */
   @Override

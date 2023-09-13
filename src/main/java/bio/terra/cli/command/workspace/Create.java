@@ -38,7 +38,6 @@ public class Create extends WsmBaseCommand {
 
   @CommandLine.Option(
       names = "--spend-profile",
-      required = false,
       description = "Spend profile to use for this workspace.")
   public String spendProfile;
 

@@ -4,6 +4,7 @@ import bio.terra.cli.businessobject.resource.AwsS3StorageFolder;
 import bio.terra.cli.businessobject.resource.AwsSageMakerNotebook;
 import bio.terra.cli.businessobject.resource.BqDataset;
 import bio.terra.cli.businessobject.resource.BqTable;
+import bio.terra.cli.businessobject.resource.GcpDataprocCluster;
 import bio.terra.cli.businessobject.resource.GcpNotebook;
 import bio.terra.cli.businessobject.resource.GcsBucket;
 import bio.terra.cli.businessobject.resource.GcsObject;
@@ -31,8 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Internal representation of a workspace resource. This abstract class contains properties common
- * to all resource types. Sub-classes represent a specific resource type. Instances of the
- * sub-classes are part of the current context or state.
+ * to all resource types. Subclasses represent a specific resource type. Instances of the subclasses
+ * are part of the current context or state.
  */
 public abstract class Resource {
   // Copied from WSM: ResourceType specific validation performed in WSM
@@ -115,6 +116,7 @@ public abstract class Resource {
       case BIG_QUERY_DATASET -> new BqDataset(wsmObject);
       case BIG_QUERY_DATA_TABLE -> new BqTable(wsmObject);
       case AI_NOTEBOOK -> new GcpNotebook(wsmObject);
+      case DATAPROC_CLUSTER -> new GcpDataprocCluster(wsmObject);
       case GIT_REPO -> new GitRepo(wsmObject);
       case AWS_S3_STORAGE_FOLDER -> new AwsS3StorageFolder(wsmObject);
       case AWS_SAGEMAKER_NOTEBOOK -> new AwsSageMakerNotebook(wsmObject);
@@ -281,6 +283,7 @@ public abstract class Resource {
     BQ_DATASET,
     BQ_TABLE,
     AI_NOTEBOOK,
+    DATAPROC_CLUSTER,
     GIT_REPO,
     AWS_S3_STORAGE_FOLDER,
     AWS_SAGEMAKER_NOTEBOOK
