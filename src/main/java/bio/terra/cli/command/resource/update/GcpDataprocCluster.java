@@ -1,7 +1,10 @@
 package bio.terra.cli.command.resource.update;
 
+import bio.terra.axonserver.model.ClusterStatus;
+import bio.terra.axonserver.model.ClusterStatus.StatusEnum;
 import bio.terra.cli.businessobject.Context;
 import bio.terra.cli.businessobject.Resource.Type;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.Format;
 import bio.terra.cli.command.shared.options.ResourceUpdate;
@@ -9,6 +12,7 @@ import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
+import java.util.Optional;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -54,8 +58,9 @@ public class GcpDataprocCluster extends WsmBaseCommand {
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
+    Workspace workspace = Context.requireWorkspace();
 
-    // all update parameters are optional, but make sure at least one is specified
+    // All update parameters are optional, but make sure at least one is specified
     if (!resourceUpdateOptions.isDefined()
         && numWorkers == null
         && numSecondaryWorkers == null
@@ -65,11 +70,21 @@ public class GcpDataprocCluster extends WsmBaseCommand {
       throw new UserActionableException("Specify at least one property to update.");
     }
 
-    // get the resource and make sure it's the right type
+    // Get the resource and make sure it's the right type
     bio.terra.cli.businessobject.resource.GcpDataprocCluster resource =
-        Context.requireWorkspace()
+        workspace
             .getResource(resourceUpdateOptions.resourceNameOption.name)
             .castToType(Type.DATAPROC_CLUSTER);
+
+    // Ensure that the cluster state is RUNNING
+    Optional<ClusterStatus> status = resource.getClusterStatus();
+    if (status.isEmpty() || status.get().getStatus() != StatusEnum.RUNNING) {
+      String state = status.isEmpty() ? "UNKNOWN" : status.get().getStatus().toString();
+      throw new UserActionableException(
+          String.format(
+              "Cannot update cluster. Expected cluster status is RUNNING but current status is %s",
+              state));
+    }
 
     resource.updateControlled(
         new UpdateControlledGcpDataprocClusterParams.Builder()
@@ -81,11 +96,8 @@ public class GcpDataprocCluster extends WsmBaseCommand {
             .idleDeleteTtl(idleDeleteTtl)
             .build());
 
-    // re-load the resource so we display all properties with up-to-date values
-    resource =
-        Context.requireWorkspace()
-            .getResource(resource.getName())
-            .castToType(Type.DATAPROC_CLUSTER);
+    // Re-load the resource so we display all properties with up-to-date values
+    resource = workspace.getResource(resource.getName()).castToType(Type.DATAPROC_CLUSTER);
     formatOption.printReturnValue(
         new UFGcpDataprocCluster(resource), GcpDataprocCluster::printText);
   }

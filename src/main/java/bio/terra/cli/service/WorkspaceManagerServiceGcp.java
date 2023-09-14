@@ -594,7 +594,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
         updateErrMsg);
 
     // Update autoscaling policy independently. Dataproc api does not allow autoscaling policy and
-    // other attributes in tandem.
+    // other attributes together.
     if (updateParams.autoscalingPolicyUri != null) {
       UpdateControlledGcpDataprocClusterRequestBody autoscalingPolicyUpdateRequest =
           new UpdateControlledGcpDataprocClusterRequestBody()
@@ -609,7 +609,7 @@ public class WorkspaceManagerServiceGcp extends WorkspaceManagerService {
     }
 
     // Update scheduled deletion independently. Dataproc api does not allow autoscaling policy and
-    // other attributes in tandem.
+    // other attributes together.
     if (updateParams.idleDeleteTtl != null) {
       UpdateControlledGcpDataprocClusterRequestBody autoscalingPolicyUpdateRequest =
           new UpdateControlledGcpDataprocClusterRequestBody()
