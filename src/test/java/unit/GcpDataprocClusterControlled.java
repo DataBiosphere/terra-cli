@@ -239,7 +239,12 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
     // additional updates throw a user facing exception
     String stdErr =
         TestCommand.runCommandExpectExitCode(
-            1, "resource", "update", "dataproc-cluster", "--num-secondary-workers=5");
+            1,
+            "resource",
+            "update",
+            "dataproc-cluster",
+            "--name=" + clusterName,
+            "--num-secondary-workers=5");
     assertThat(
         "error message includes expected and current status",
         stdErr,
