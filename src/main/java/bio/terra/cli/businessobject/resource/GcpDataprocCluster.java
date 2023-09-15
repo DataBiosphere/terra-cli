@@ -7,6 +7,7 @@ import bio.terra.cli.businessobject.Resource;
 import bio.terra.cli.exception.UserActionableException;
 import bio.terra.cli.serialization.persisted.resource.PDGcpDataprocCluster;
 import bio.terra.cli.serialization.userfacing.input.CreateGcpDataprocClusterParams;
+import bio.terra.cli.serialization.userfacing.input.UpdateControlledGcpDataprocClusterParams;
 import bio.terra.cli.serialization.userfacing.resource.UFGcpDataprocCluster;
 import bio.terra.cli.service.AxonServerService;
 import bio.terra.cli.service.WorkspaceManagerServiceGcp;
@@ -76,6 +77,15 @@ public class GcpDataprocCluster extends Resource {
     logger.info("Created GCP dataproc cluster: {}", createdResource);
 
     return new GcpDataprocCluster(createdResource);
+  }
+
+  public void updateControlled(UpdateControlledGcpDataprocClusterParams updateParams) {
+    if (updateParams.resourceFields.name != null) {
+      validateResourceName(updateParams.resourceFields.name);
+    }
+    WorkspaceManagerServiceGcp.fromContext()
+        .updateControlledDataprocCluster(Context.requireWorkspace().getUuid(), id, updateParams);
+    super.updatePropertiesAndSync(updateParams.resourceFields);
   }
 
   /**

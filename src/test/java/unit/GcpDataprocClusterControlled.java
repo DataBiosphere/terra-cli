@@ -213,6 +213,81 @@ public class GcpDataprocClusterControlled extends SingleWorkspaceUnitGcp {
   }
 
   @Test
+  @DisplayName("update cluster worker count and idle deletion time")
+  void update() throws IOException, InterruptedException {
+    workspaceCreator.login();
+
+    // `terra workspace set --id=$id`
+    TestCommand.runCommandExpectSuccess("workspace", "set", "--id=" + getUserFacingId());
+
+    // Update wsm metadata and worker counts
+    String newDescription = "\"new cluster description\"";
+    int newPrimaryWorkerCount = 3;
+    int newSecondaryWorkerCount = 3;
+    TestCommand.runAndParseCommandExpectSuccess(
+        UFGcpDataprocCluster.class,
+        "resource",
+        "update",
+        "dataproc-cluster",
+        "--name=" + clusterName,
+        "--new-description=" + newDescription,
+        "--num-workers=" + newPrimaryWorkerCount,
+        "--num-secondary-workers=" + newSecondaryWorkerCount);
+    UFGcpDataprocCluster updatedCluster;
+
+    // While the cluster is scaling down secondary workers (takes ~30 seconds), ensure that
+    // additional updates throw a user facing exception
+    String stdErr =
+        TestCommand.runCommandExpectExitCode(
+            1,
+            "resource",
+            "update",
+            "dataproc-cluster",
+            "--name=" + clusterName,
+            "--num-secondary-workers=5");
+    assertThat(
+        "error message includes expected and current status",
+        stdErr,
+        CoreMatchers.containsString("Expected cluster status is"));
+
+    // Poll until the cluster is running again
+    ResourceUtils.pollDescribeForResourceField(clusterName, "status", "RUNNING");
+
+    // Update idle deletion time
+    String newIdleDeleteTtl = "2000s";
+    updatedCluster =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcpDataprocCluster.class,
+            "resource",
+            "update",
+            "dataproc-cluster",
+            "--name=" + clusterName,
+            "--idle-delete-ttl=" + newIdleDeleteTtl);
+    ResourceUtils.pollDescribeForResourceField(clusterName, "status", "RUNNING");
+
+    // check that the fields are correctly updated
+    assertEquals(
+        newDescription, updatedCluster.description, "cluster description matches expected");
+
+    UFGcpDataprocCluster describeResource =
+        TestCommand.runAndParseCommandExpectSuccess(
+            UFGcpDataprocCluster.class, "resource", "describe", "--name=" + clusterName);
+
+    assertEquals(
+        newPrimaryWorkerCount,
+        describeResource.numWorkers,
+        "cluster num primary workers matches expected");
+    assertEquals(
+        newSecondaryWorkerCount,
+        describeResource.numSecondaryWorkers,
+        "cluster num secondary workers matches expected");
+    assertEquals(
+        newIdleDeleteTtl,
+        describeResource.idleDeleteTtl,
+        "cluster idle delete ttl matches expected");
+  }
+
+  @Test
   @DisplayName("list and describe reflect a deleting cluster")
   void listDescribeReflectDelete() throws IOException {
     workspaceCreator.login();
