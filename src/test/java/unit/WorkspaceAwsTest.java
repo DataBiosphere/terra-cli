@@ -251,15 +251,35 @@ public class WorkspaceAwsTest extends ClearContextUnit {
         "--cache-with-aws-vault",
         "--default-resource=" + folder1);
     awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
-    String prevTerraPath = awsConfiguration.getTerraPath();
-    String prevAwsVaultPath = awsConfiguration.getAwsVaultPath();
-    boolean prevCacheWithAwsVault = awsConfiguration.getCacheWithAwsVault();
-    Optional<String> readDefaultResourceName = awsConfiguration.getDefaultResourceName();
-    assertEquals(terraPath, prevTerraPath, "terra path in configuration matches expected");
     assertEquals(
-        awsVaultPath, prevAwsVaultPath, "aws vault path in configuration matches expected");
-    assertTrue(prevCacheWithAwsVault, "cache with aws vault is true");
-    assertEquals(folder1, readDefaultResourceName.orElse(null), "default resource name unchanged");
+        terraPath, awsConfiguration.getTerraPath(), "terra path in configuration matches expected");
+    assertEquals(
+        awsVaultPath,
+        awsConfiguration.getAwsVaultPath(),
+        "aws vault path in configuration matches expected");
+    assertTrue(awsConfiguration.getCacheWithAwsVault(), "cache with aws vault is true");
+    assertEquals(
+        folder1,
+        awsConfiguration.getDefaultResourceName().orElse(null),
+        "default resource name unchanged");
+    AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
+
+    String anotherAwsVaultPath = "/another/fake/path/to/aws-vault";
+    // 'terra workspace configure-aws --aws-vault-path=$path --append'
+    TestCommand.runCommandExpectSuccess(
+        "workspace", "configure-aws", "--aws-vault-path=" + anotherAwsVaultPath, "--append");
+    awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
+    assertEquals(
+        terraPath, awsConfiguration.getTerraPath(), "terra path in configuration unchanged");
+    assertEquals(
+        anotherAwsVaultPath,
+        awsConfiguration.getAwsVaultPath(),
+        "aws vault path in configuration matches expected");
+    assertTrue(awsConfiguration.getCacheWithAwsVault(), "cache with aws vault unchanged");
+    assertEquals(
+        folder1,
+        awsConfiguration.getDefaultResourceName().orElse(null),
+        "default resource name unchanged");
     AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
 
     // 'terra resource delete --name=$defaultResourceName --quiet' - default resource deleted, other
@@ -267,17 +287,14 @@ public class WorkspaceAwsTest extends ClearContextUnit {
     TestCommand.runCommandExpectSuccess("resource", "delete", "--name=" + folder1, "--quiet");
     resourceNames = Set.of(folder2);
     awsConfiguration = AwsConfiguration.loadFromDisk(createdWorkspace.uuid);
-
     assertEquals(
-        prevTerraPath, awsConfiguration.getTerraPath(), "terra path in configuration unchanged");
+        terraPath, awsConfiguration.getTerraPath(), "terra path in configuration unchanged");
     assertEquals(
-        prevAwsVaultPath,
+        anotherAwsVaultPath,
         awsConfiguration.getAwsVaultPath(),
         "aws vault path in configuration unchanged");
-    assertEquals(
-        prevCacheWithAwsVault,
-        awsConfiguration.getCacheWithAwsVault(),
-        "cache with aws vault in configuration unchanged");
+    assertTrue(
+        awsConfiguration.getCacheWithAwsVault(), "cache with aws vault in configuration unchanged");
     assertTrue(
         awsConfiguration.getDefaultResourceName().isEmpty(), "default resource name is removed");
     AwsConfigurationTestUtils.validateConfiguration(awsConfiguration, awsRegion, resourceNames);
