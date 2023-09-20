@@ -16,7 +16,8 @@ public class TestContext {
 
   /**
    * Delete the contents of the global context directory, except for the Java library dependencies
-   * in the "lib" sub-directory and the running log files in the "logs" sub-directory.
+   * in the "lib" sub-directory, the running log files in the "logs" sub-directory and the
+   * aws-workspace configuration in the "aws" sub-directory
    */
   public static void clearGlobalContextDir() throws IOException {
     Path globalContextDir = Context.getContextDir();
@@ -25,15 +26,19 @@ public class TestContext {
     }
     Path globalContextLibDir = globalContextDir.resolve("lib");
     Path globalContextLogsDir = globalContextDir.resolve("logs");
+    Path globalContextAwsDir = globalContextDir.resolve("aws");
 
     // delete all children of the global context directory, except for:
     //  - "lib" sub-directory that contains all the JAR dependencies
     //  - "logs" sub-directory that contains the rolling log files
+    //  - "aws" sub-directory that contains the workspace aws configuration (created and deleted by
+    // the workspace)
     FileUtils.walkUpFileTree(
         globalContextDir,
         childPath -> {
           if (!childPath.startsWith(globalContextLibDir)
-              && !childPath.startsWith(globalContextLogsDir)) {
+              && !childPath.startsWith(globalContextLogsDir)
+              && !childPath.startsWith(globalContextAwsDir)) {
             childPath.toFile().delete();
           }
         },
