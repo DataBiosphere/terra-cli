@@ -25,8 +25,8 @@ import org.broadinstitute.dsde.workbench.client.sam.api.GroupApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.ResourcesApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.StatusApi;
 import org.broadinstitute.dsde.workbench.client.sam.api.UsersApi;
-import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipV2;
-import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipRequest;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntryV2;
 import org.broadinstitute.dsde.workbench.client.sam.model.CreateResourceRequestV2;
 import org.broadinstitute.dsde.workbench.client.sam.model.ErrorReport;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
@@ -174,7 +174,7 @@ public class SamService {
   public void registerUser() {
     callWithRetries(
         () -> {
-          UserStatus userStatus = new UsersApi(apiClient).createUserV2();
+          UserStatus userStatus = new UsersApi(apiClient).createUserV2(/*body=*/ null);
           logger.info(
               "User registered in SAM: {}, {}",
               userStatus.getUserInfo().getUserSubjectId(),
@@ -193,7 +193,8 @@ public class SamService {
     callWithRetries(
         () -> {
           logger.info("Inviting new user: {}", userEmail);
-          UserStatusDetails userStatusDetails = new UsersApi(apiClient).inviteUser(userEmail);
+          UserStatusDetails userStatusDetails =
+              new UsersApi(apiClient).inviteUser(userEmail, /*body=*/ null);
           logger.info("Invited new user: {}", userStatusDetails);
         },
         "Error inviting new user in SAM.");
@@ -272,7 +273,8 @@ public class SamService {
    */
   public void createGroup(String groupName) {
     callWithRetries(
-        () -> new GroupApi(apiClient).postGroup(groupName), "Error creating SAM group.");
+        () -> new GroupApi(apiClient).postGroup(groupName, /*body=*/ null),
+        "Error creating SAM group.");
   }
 
   /**
@@ -295,7 +297,7 @@ public class SamService {
    */
   public List<String> listUsersInGroup(String groupName, GroupPolicy policy) {
     return callWithRetries(
-        () -> new GroupApi(apiClient).getGroupAdminEmails(groupName, policy.getSamPolicy()),
+        () -> new GroupApi(apiClient).getGroupPolicyEmails(groupName, policy.getSamPolicy()),
         "Error listing users in SAM group.");
   }
 
@@ -313,7 +315,8 @@ public class SamService {
       // instead, require the admin to explicitly invite someone
       callWithRetries(
           () ->
-              new GroupApi(apiClient).addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
+              new GroupApi(apiClient)
+                  .addEmailToGroup(groupName, policy.getSamPolicy(), userEmail, /*body=*/ null),
           "Error adding user to SAM group.");
     } else {
       // - try to add the email to the group
@@ -321,7 +324,8 @@ public class SamService {
       // - so try to invite the user first, then retry adding them to the group
       callAndHandleOneTimeError(
           () ->
-              new GroupApi(apiClient).addEmailToGroup(groupName, policy.getSamPolicy(), userEmail),
+              new GroupApi(apiClient)
+                  .addEmailToGroup(groupName, policy.getSamPolicy(), userEmail, /*body=*/ null),
           (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
           () -> inviteUser(userEmail),
           "Error adding user to SAM group.");
@@ -375,7 +379,8 @@ public class SamService {
       callWithRetries(
           () ->
               new ResourcesApi(apiClient)
-                  .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+                  .addUserToPolicyV2(
+                      resourceType, resourceId, resourcePolicyName, userEmail, /*body=*/ null),
           "Error adding user to SAM resource.");
     } else {
       // - try to add user to the policy
@@ -385,7 +390,8 @@ public class SamService {
       callAndHandleOneTimeError(
           () ->
               new ResourcesApi(apiClient)
-                  .addUserToPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+                  .addUserToPolicyV2(
+                      resourceType, resourceId, resourcePolicyName, userEmail, /*body=*/ null),
           (ex) -> isHttpStatusCode(ex, HttpStatusCodes.STATUS_CODE_BAD_REQUEST),
           () -> inviteUser(userEmail),
           "Error adding user to SAM resource.");
@@ -407,7 +413,7 @@ public class SamService {
     callWithRetries(
         () ->
             new ResourcesApi(apiClient)
-                .removeUserFromPolicy(resourceType, resourceId, resourcePolicyName, userEmail),
+                .removeUserFromPolicyV2(resourceType, resourceId, resourcePolicyName, userEmail),
         "Error removing user from SAM resource.");
   }
 
@@ -419,10 +425,10 @@ public class SamService {
    * @param resourceId id of resource
    * @return list of policies on the resource and their members
    */
-  public List<AccessPolicyResponseEntry> listPoliciesForResource(
+  public List<AccessPolicyResponseEntryV2> listPoliciesForResource(
       String resourceType, String resourceId) {
     return callWithRetries(
-        () -> new ResourcesApi(apiClient).listResourcePolicies(resourceType, resourceId),
+        () -> new ResourcesApi(apiClient).listResourcePoliciesV2(resourceType, resourceId),
         "Error getting policies for SAM resource.");
   }
 
@@ -435,7 +441,7 @@ public class SamService {
    * @param policies list of policies on the resource
    */
   public void createResource(
-      String resourceType, String resourceId, Map<String, AccessPolicyMembershipV2> policies) {
+      String resourceType, String resourceId, Map<String, AccessPolicyMembershipRequest> policies) {
     CreateResourceRequestV2 request =
         new CreateResourceRequestV2().resourceId(resourceId).policies(policies);
     logger.debug("create resource request: {}", request);

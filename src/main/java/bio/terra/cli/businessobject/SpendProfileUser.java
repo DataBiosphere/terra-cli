@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntryV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +96,7 @@ public class SpendProfileUser {
    */
   private static Map<String, SpendProfileUser> listUsersInMap(String spendProfile) {
     // call SAM to get the users + policies for a profile resource
-    List<AccessPolicyResponseEntry> accessPolicies =
+    List<AccessPolicyResponseEntryV2> accessPolicies =
         SpendProfileManagerService.fromContext().listUsersOfSpendProfile(spendProfile);
 
     // convert the SAM objects (policy -> list of emails) to CLI objects (email -> list of policies)

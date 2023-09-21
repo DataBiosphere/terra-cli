@@ -50,7 +50,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.879-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-axon-server', version: '0.45.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: "1.2.23-SNAPSHOT"
-    implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-ffb0a89-SNAP'
+    implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-04fe1ef-SNAP'
 
     // command parsing
     implementation group: 'info.picocli', name: 'picocli', version: '4.6.3'

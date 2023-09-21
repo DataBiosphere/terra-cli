@@ -4,8 +4,8 @@ import bio.terra.cli.businessobject.Context;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipV2;
-import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntry;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyMembershipRequest;
+import org.broadinstitute.dsde.workbench.client.sam.model.AccessPolicyResponseEntryV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,20 +70,20 @@ public class SpendProfileManagerService {
    * @param spendProfile name of the spend profile resource
    * @return a list of policies with their member emails
    */
-  public List<AccessPolicyResponseEntry> listUsersOfSpendProfile(String spendProfile) {
+  public List<AccessPolicyResponseEntryV2> listUsersOfSpendProfile(String spendProfile) {
     return samService.listPoliciesForResource(SPEND_PROFILE_RESOURCE_TYPE, spendProfile);
   }
 
   /** Create a new SAM resource for a spend profile. */
   public void createSpendProfile(String spendProfile) {
     // create two policies (owner, user) and make sure the current user is an owner
-    Map<String, AccessPolicyMembershipV2> policies = new HashMap<>();
+    Map<String, AccessPolicyMembershipRequest> policies = new HashMap<>();
     policies.put(
         "owner",
-        new AccessPolicyMembershipV2()
+        new AccessPolicyMembershipRequest()
             .addRolesItem("owner")
             .addMemberEmailsItem(Context.requireUser().getEmail()));
-    policies.put("user", new AccessPolicyMembershipV2().addRolesItem("user"));
+    policies.put("user", new AccessPolicyMembershipRequest().addRolesItem("user"));
 
     samService.createResource(SPEND_PROFILE_RESOURCE_TYPE, spendProfile, policies);
   }
