@@ -6,6 +6,7 @@ import static bio.terra.cli.utils.AwsConfiguration.DEFAULT_CACHE_WITH_AWS_VAULT;
 import static bio.terra.cli.utils.AwsConfiguration.DEFAULT_TERRA_PATH;
 
 import bio.terra.cli.businessobject.Context;
+import bio.terra.cli.businessobject.Workspace;
 import bio.terra.cli.command.shared.WsmBaseCommand;
 import bio.terra.cli.command.shared.options.WorkspaceOverride;
 import bio.terra.cli.utils.AwsConfiguration;
@@ -39,12 +40,21 @@ public class ConfigureAws extends WsmBaseCommand {
       description = "Name of resource to treat as default")
   private String defaultResourceName;
 
+  @CommandLine.Option(names = "--append", description = "Append options to existing config")
+  private boolean append;
+
   @Override
   protected void execute() {
     workspaceOption.overrideIfSpecified();
 
+    Workspace workspace = Context.requireWorkspace();
+
+    // append: get existing config, may be overwritten later
     AwsConfiguration.Builder builder =
-        AwsConfiguration.builder().setWorkspace(Context.requireWorkspace());
+        append
+            ? AwsConfiguration.loadFromDisk(workspace.getUuid()).toBuilder()
+            : AwsConfiguration.builder();
+
     if (cacheWithAwsVault != null) {
       builder.setCacheWithAwsVault(cacheWithAwsVault);
     }
@@ -58,7 +68,7 @@ public class ConfigureAws extends WsmBaseCommand {
       builder.setDefaultResourceName(defaultResourceName);
     }
 
-    Path filePath = builder.build().storeToDisk();
+    Path filePath = builder.setWorkspace(workspace).build().storeToDisk();
     OUT.printf("export %s=%s%n", AWS_CONFIG_FILE_ENVIRONMENT_VARIABLE, filePath);
   }
 }

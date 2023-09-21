@@ -49,6 +49,14 @@ public class AwsConfiguration {
     return new Builder();
   }
 
+  public Builder toBuilder() {
+    return new Builder()
+        .setCacheWithAwsVault(getCacheWithAwsVault())
+        .setTerraPath(getTerraPath())
+        .setAwsVaultPath(getAwsVaultPath())
+        .setDefaultResourceName(getDefaultResourceName().orElse(null));
+  }
+
   private AwsConfiguration(Builder builder) {
     Workspace workspace = builder.workspace;
     filePath = getConfigFilePath(workspace.getUuid());
@@ -341,7 +349,7 @@ public class AwsConfiguration {
     private Workspace workspace;
 
     private Builder() {
-      cacheWithAwsVault = false;
+      cacheWithAwsVault = DEFAULT_CACHE_WITH_AWS_VAULT;
       terraPath = DEFAULT_TERRA_PATH;
       awsVaultPath = DEFAULT_AWS_VAULT_PATH;
       defaultResourceName = null; // no default
