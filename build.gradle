@@ -8,12 +8,6 @@ plugins {
     id 'com.github.spotbugs' version '5.0.13'
     id 'org.gradle.test-retry' version '1.4.1'
     id 'org.sonarqube' version '4.0.0.2929'
-
-    // Fix guava -jre vs -android dependency resolution.
-    // The terra-cloud-resource library requires the -jre guava version. Without this plugin, we may
-    // use the wrong guava version, leading to runtime errors.
-    // See also https://blog.gradle.org/guava
-    id 'de.jjohannes.missing-metadata-guava' version '31.1.1'
 }
 
 project.ext {
@@ -36,6 +30,11 @@ repositories {
 }
 
 dependencies {
+
+    constraints {
+       implementation group: 'org.json', name: 'json', version: '20230227'
+    }
+
     // Needed for Mac M1
     implementation group: 'net.java.dev.jna', name: 'jna', version: '5.12.1'
     // Needed for terra cloud resource library
@@ -43,13 +42,13 @@ dependencies {
 
     // Terra deps
     // TODO(PF-1928) - update versions after Terra-client JDK updates
-    implementation group: 'bio.terra', name: 'datarepo-client', version: '1.0.155-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'datarepo-client', version: '1.528.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'externalcreds-client-resttemplate', version: '0.101.0-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.5-SNAPSHOT'
     implementation group: 'bio.terra', name: 'user-client', version: '0.3.0-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.879-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'workspace-manager-client', version: '0.254.922-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-axon-server', version: '0.45.0-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: "1.2.23-SNAPSHOT"
+    implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: "1.2.24-SNAPSHOT"
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: '0.1-04fe1ef-SNAP'
 
     // command parsing
