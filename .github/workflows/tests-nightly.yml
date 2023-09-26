@@ -1,8 +1,8 @@
 name: Run tests nightly
 on:
   workflow_dispatch: { }
-  schedule:
-  - cron: '0 5 * * *' # 5AM UTC = 12AM EST
+#  schedule:
+#  - cron: '0 5 * * *' # 5AM UTC = 12AM EST
 
 jobs:
   test-source-and-install:
