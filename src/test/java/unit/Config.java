@@ -69,19 +69,19 @@ public class Config extends SingleWorkspaceUnit {
     // It's fine that this test hard-codes server names. We're just testing server configuration is
     // saved correctly; we're not actually making calls to the server.
 
-    // `terra server set --name=verily-devel`
-    TestCommand.runCommandExpectSuccess("server", "set", "--name=verily-devel", "--quiet");
+    // `terra server set --name=broad-dev-cli-testing`
+    TestCommand.runCommandExpectSuccess("server", "set", "--name=broad-dev-cli-testing", "--quiet");
 
     // `terra config get server`
     UFServer getValue =
         TestCommand.runAndParseCommandExpectSuccess(UFServer.class, "config", "get", "server");
-    assertEquals("verily-devel", getValue.name, "server set affects config get");
+    assertEquals("broad-dev-cli-testing", getValue.name, "server set affects config get");
 
     // `terra config list`
     List<HashMap> configItemList =
         TestCommand.runAndParseCommandExpectSuccess(ArrayList.class, "config", "list");
     assertEquals(
-        "verily-devel",
+        "broad-dev-cli-testing",
         getTableFormatValue(configItemList, "server"),
         "server set affects config list");
 

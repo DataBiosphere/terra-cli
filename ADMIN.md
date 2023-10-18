@@ -146,7 +146,7 @@ the `broad-dev-cli-testing` deployment:
 ```shell
 ./tools/render-config.sh
 terra auth login # login as yourself, the break-glass granter
-terra workspace break-glass --email=breakglassrequester@gmail.com --big-query-project=terra-cli-dev --big-query-sa=rendered/broad/ci-account.json --user-project-admin-sa=rendered/broad/verilycli-wsm-sa.json --notes="Testing break-glass command."
+terra workspace break-glass --email=breakglassrequester@gmail.com --big-query-project=terra-cli-dev --big-query-sa=rendered/broad/ci-account.json --user-project-admin-sa=rendered/broad/wsm-sa.json --notes="Testing break-glass command."
 ```
 
 ### Requests catalog

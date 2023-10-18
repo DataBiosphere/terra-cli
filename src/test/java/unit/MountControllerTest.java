@@ -96,13 +96,13 @@ public class MountControllerTest {
     when(resource1.getName()).thenReturn("bucket-1");
     when(resource1.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
     when(resource1.getStewardshipType()).thenReturn(StewardshipType.CONTROLLED);
-    when(resource1.getCreatedBy()).thenReturn("johny.appleseed@verily.com");
+    when(resource1.getCreatedBy()).thenReturn("johny.appleseed@email.com");
 
     resource2 = mock(Resource.class);
     when(resource2.getName()).thenReturn("bucket-2");
     when(resource2.getResourceType()).thenReturn(Resource.Type.GCS_BUCKET);
     when(resource2.getStewardshipType()).thenReturn(StewardshipType.CONTROLLED);
-    when(resource2.getCreatedBy()).thenReturn("bonny.bananabead@verily.com");
+    when(resource2.getCreatedBy()).thenReturn("bonny.bananabead@email.com");
 
     workspace = mock(Workspace.class);
     when(workspace.listResources()).thenReturn(List.of(resource1, resource2));
@@ -110,7 +110,7 @@ public class MountControllerTest {
     when(workspace.getResource(resource2.getName())).thenReturn(resource2);
 
     user = mock(User.class);
-    when(user.getEmail()).thenReturn("johny.appleseed@verily.com");
+    when(user.getEmail()).thenReturn("johny.appleseed@email.com");
 
     mountHandler1 = mock(GcsFuseMountHandler.class);
     mountHandler2 = mock(GcsFuseMountHandler.class);
