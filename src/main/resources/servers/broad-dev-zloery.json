@@ -1,0 +1,13 @@
+{
+  "name": "broad-dev-zloery",
+  "clientCredentialsFile": "broad_secret.json",
+  "cloudBuildEnabled": false,
+  "description": "Broad developer environment (zloery)",
+  "dataRepoUri": "https://jade.datarepo-dev.broadinstitute.org",
+  "samUri": "https://sam.dsde-dev.broadinstitute.org",
+  "workspaceManagerUri": "https://workspace.zloery.integ.envs.broadinstitute.org",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile",
+  "externalCredsUri": "https://externalcreds.dsde-dev.broadinstitute.org",
+  "auth0Enabled": false,
+  "supportedCloudPlatforms": ["GCP"]
+}

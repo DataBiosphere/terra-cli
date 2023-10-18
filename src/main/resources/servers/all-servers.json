@@ -3,5 +3,13 @@
   "broad-dev-cli-testing.json",
   "broad-dev-local-wsm.json",
   "broad-dev-local-sam.json",
-  "broad-wsmtest.json"
+  "broad-dev-mmedlock.json",
+  "broad-dev-zloery.json",
+  "broad-wsmtest.json",
+  "verily.json",
+  "verily-autopush.json",
+  "verily-devel.json",
+  "verily-mc-feature-dev.json",
+  "verily-preprod.json",
+  "verily-staging.json"
 ]

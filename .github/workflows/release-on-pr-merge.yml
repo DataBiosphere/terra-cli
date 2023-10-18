@@ -45,6 +45,9 @@ jobs:
     - name: Update client credentials
       run: |
         ./tools/client-credentials.sh "src/main/resources/broad_secret.json" ${{ secrets.BROAD_CLIENT_ID }} ${{ secrets.BROAD_CLIENT_SECRET }}
+        ./tools/client-credentials.sh "src/main/resources/verily_secret.json" ${{ secrets.VERILY_CLIENT_ID }} ${{ secrets.VERILY_CLIENT_SECRET }}
+        ./tools/client-credentials.sh "src/main/resources/verily_auth0_dev_secret.json" ${{ secrets.VERILY_AUTH0_DEV_CLIENT_ID }} ${{ secrets.VERILY_AUTH0_DEV_CLIENT_SECRET }}
+        ./tools/client-credentials.sh "src/main/resources/verily_auth0_prod_secret.json" ${{ secrets.VERILY_AUTH0_PROD_CLIENT_ID }} ${{ secrets.VERILY_AUTH0_PROD_CLIENT_SECRET }}
 
     - name: Bump tag and build version
       id: bump_tag

@@ -21,6 +21,7 @@ TEST_USER_SA_VAULT_PATH=secret/dsde/firecloud/dev/common/firecloud-account.json
 TEST_USERS_VAULT_PATH=secret/dsde/terra/cli-test/test-users
 EXT_PROJECT_SA_VAULT_PATH=secret/dsde/terra/cli-test/default/service-account-admin.json
 JANITOR_CLIENT_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
+VERILYCLI_WSM_SA_VAULT_PATH=secret/dsde/terra/kernel/integration/verilycli/workspace/app-sa
 CLIENT_CRED_VAULT_PATH=secret/dsde/terra/cli/oauth-client-credentials
 
 # Helper function to read a secret from Vault and write it to a local file in the rendered/broad/ directory.
@@ -65,9 +66,9 @@ readFromVault "${EXT_PROJECT_SA_VAULT_PATH}" "external-project-account.json"
 echo "Reading the Janitor client service account key file from Vault"
 readFromVault "${JANITOR_CLIENT_SA_VAULT_PATH}" "janitor-client.json" "base64"
 
-# used for granting break-glass access to a workspace
-# echo "Reading the WSM app service account key file from Vault"
-# readFromVault "${WSM_SA_VAULT_PATH}" "wsm-sa.json" "base64"
+# used for granting break-glass access to a workspace in the verilycli deployment
+echo "Reading the WSM app service account key file for the verilycli deployment from Vault"
+readFromVault "${VERILYCLI_WSM_SA_VAULT_PATH}" "verilycli-wsm-sa.json" "base64"
 
 # Read test user refresh tokens
 echo "Reading test user refresh tokens from Vault"
@@ -85,3 +86,33 @@ clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_D
             jq -r '.data."broad-client-secret"')
 ./tools/client-credentials.sh "src/main/resources/broad_secret.json" "${clientId}" "${clientSecret}" \
                               "rendered/broad_secret.json"
+
+echo "Fetching Verily client id and client secrets"
+clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+            jq -r '.data."verily-client-id"')
+clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+            jq -r '.data."verily-client-secret"')
+./tools/client-credentials.sh "src/main/resources/verily_secret.json" "${clientId}" "${clientSecret}" \
+                              "rendered/verily_secret.json"
+
+echo "Fetching Verily auth0 dev client id and client secrets"
+clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+            jq -r '.data."verily-auth0-dev-client-id"')
+clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+            jq -r '.data."verily-auth0-dev-client-secret"')
+./tools/client-credentials.sh "src/main/resources/verily_auth0_dev_secret.json" "${clientId}" "${clientSecret}" \
+                              "rendered/verily_auth0_dev_secret.json"
+
+echo "Fetching Verily auth0 prod client id and client secrets"
+clientId=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+            jq -r '.data."verily-auth0-prod-client-id"')
+clientSecret=$(docker run --rm -e VAULT_TOKEN="${VAULT_TOKEN}" "${DSDE_TOOLBOX_DOCKER_IMAGE}" \
+            vault read -format json "${CLIENT_CRED_VAULT_PATH}" | \
+            jq -r '.data."verily-auth0-prod-client-secret"')
+./tools/client-credentials.sh "src/main/resources/verily_auth0_prod_secret.json" "${clientId}" "${clientSecret}" \
+                              "rendered/verily_auth0_prod_secret.json"

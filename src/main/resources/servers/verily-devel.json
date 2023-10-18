@@ -1,0 +1,18 @@
+{
+  "name": "verily-devel",
+  "clientCredentialsFile": "verily_auth0_dev_secret.json",
+  "cloudBuildEnabled": true,
+  "description": "Verily devel environment",
+  "samUri": "https://terra-devel-sam.api.verily.com",
+  "samInviteRequiresAdmin": true,
+  "workspaceManagerUri": "https://terra-devel-wsm.api.verily.com",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile",
+  "externalCredsUri": "https://terra-devel-ecm.api.verily.com",
+  "userManagerUri": "https://terra-devel-user.api.verily.com",
+  "axonServerUri": "https://terra-devel-axon.api.verily.com",
+  "supportsIdToken": true,
+  "auth0Enabled": true,
+  "auth0Domain": "verily-terra-dev.us.auth0.com",
+  "flagsmithClientSideKey": "FYzNYx4DrHrfg64pxSwEjP",
+  "flagsmithApiUrl": "https://terra-flagsmith.api.verily.com/api/v1/"
+}

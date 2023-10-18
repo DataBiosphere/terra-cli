@@ -1,0 +1,13 @@
+{
+  "name": "verily-mc-feature-dev",
+  "clientCredentialsFile": "verily_secret.json",
+  "description": "Verily mc-feature-dev environment",
+  "samUri": "https://terra-mc-feature-dev-sam.api.verily.com",
+  "samInviteRequiresAdmin": true,
+  "workspaceManagerUri": "https://terra-mc-feature-dev-wsm.api.verily.com",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile",
+  "externalCredsUri": "https://terra-mc-feature-dev-ecm.api.verily.com",
+  "supportsIdToken": true,
+  "auth0Enabled": false,
+  "supportedCloudPlatforms": ["GCP"]
+}

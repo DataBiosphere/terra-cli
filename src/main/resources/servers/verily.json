@@ -1,0 +1,18 @@
+{
+  "name": "verily",
+  "clientCredentialsFile": "verily_auth0_prod_secret.json",
+  "cloudBuildEnabled": true,
+  "description": "Verily production environment",
+  "samUri": "https://terra-sam.api.verily.com",
+  "samInviteRequiresAdmin": true,
+  "workspaceManagerUri": "https://terra-wsm.api.verily.com",
+  "wsmDefaultSpendProfile": "wm-default-spend-profile",
+  "externalCredsUri": "https://terra-ecm.api.verily.com",
+  "userManagerUri": "https://terra-user.api.verily.com",
+  "axonServerUri": "https://terra-axon.api.verily.com",
+  "supportsIdToken": true,
+  "auth0Enabled": true,
+  "auth0Domain": "verily-terra-prod.us.auth0.com",
+  "flagsmithClientSideKey": "PvCmfnTvoDniqAWrZVww62",
+  "flagsmithApiUrl": "https://terra-flagsmith.api.verily.com/api/v1/"
+}
