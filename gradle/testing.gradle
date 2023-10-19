@@ -142,7 +142,7 @@ task runTestsWithTag(type: Test) {
         environment 'TERRA_CONTEXT_PARENT_DIR', project.findProperty('contextDir')
     }
 
-    // specify the server to run tests against (e.g. -Pserver=verily-devel). defaults to 'broad-dev'
+    // specify the server to run tests against (e.g. -Pserver=broad-dev-cli-testing). defaults to 'broad-dev'
     String terraServer = project.hasProperty('server') ? project.findProperty('server') : 'broad-dev'
     environment 'TERRA_SERVER', terraServer
 
