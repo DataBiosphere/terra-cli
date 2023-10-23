@@ -78,6 +78,7 @@ import picocli.CommandLine.ParseResult;
       Resolve.class,
       Resource.class,
       Server.class,
+      Snapshot.class,
       Spend.class,
       Status.class,
       User.class,
