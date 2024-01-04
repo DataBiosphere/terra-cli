@@ -44,7 +44,7 @@ terra config set image --default
 terra config set app-launch DOCKER_CONTAINER
 echo "Pulling the default Docker image"
 defaultDockerImage=$(terra config get image)
-docker pull "$defaultDockerImage"
+docker pull sha256:fb149df709a05cf9c9fb22ccdb274b0e964cd07d4d61de194032311784bb4b5d
 
 echo "Setting the server to its current value, to pull any changes"
 currentServer=$(terra config get server)
